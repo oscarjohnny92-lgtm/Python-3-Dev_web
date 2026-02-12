@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-toggle {
+            display: flex;
+            margin-bottom: 2rem;
+            background: #f8f9fa;
+            border-radius: 50px;
+            padding: 0.3rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            background: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #c33;
+            display: none;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3c3;
+            display: none;
+        }
+
+        .form-content {
+            display: none;
+        }
+
+        .form-content.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-header">
+            <h2>Bienvenue</h2>
+            <p>Connectez-vous ou créez un compte</p>
+        </div>
+
+        <div id="errorMsg" class="error"></div>
+        <div id="successMsg" class="success"></div>
+
+        <div class="form-toggle">
+            <button class="toggle-btn active" onclick="showForm('login')">Connexion</button>
+            <button class="toggle-btn" onclick="showForm('register')">Inscription</button>
+        </div>
+
+        <!-- Formulaire de Connexion -->
+        <div id="loginForm" class="form-content active">
+            <div class="input-group">
+                <span class="input-icon">👤</span>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+            </div>
+            <button class="btn btn-primary" onclick="handleLogin()">Se connecter</button>
+            <div class="links">
+                <a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a>
+            </div>
+        </div>
+
+        <!-- Formulaire d'Inscription -->
+        <div id="registerForm" class="form-content">
+            <div class="input-group">
+                <span class="input-icon">👤</span>
+                <input type="text" id="regName" placeholder="Nom complet" required>
+            </div>
+            <div class="input-group">
+                <span class="input-icon">📧</span>
+                <input type="email" id="regEmail" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="regPassword" placeholder="Mot de passe (8+ chars)" required>
+            </div>
+            <div class="input-group">
+                <span class="input-icon">🔄</span>
+                <input type="password" id="regConfirmPassword" placeholder="Confirmer mot de passe" required>
+            </div>
+            <button class="btn btn-primary" onclick="handleRegister()">S'inscrire</button>
+        </div>
+
+        <!-- Message de bienvenue après connexion -->
+        <div id="welcomeScreen" class="form-content" style="text-align: center; display: none;">
+            <h3>🎉 Bienvenue !</h3>
+            <p id="welcomeUser"></p>
+            <button class="btn btn-secondary" onclick="logout()">Se déconnecter</button>
+        </div>
+    </div>
+
+    <script>
+        // Données utilisateurs simulées (en production, utiliser une vraie base de données)
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        function showForm(formType) {
+            // Masquer tous les formulaires
+            document.querySelectorAll('.form-content').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Afficher le formulaire demandé
+            if (formType === 'login') {
+                document.getElementById('loginForm').classList.add('active');
+                event.target.classList.add('active');
+            } else {
+                document.getElementById('registerForm').classList.add('active');
+                event.target.classList.add('active');
+            }
+
+            // Cacher les messages
+            hideMessages();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMsg').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'none';
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError('Veuillez remplir tous les champs');
+                return;
+            }
+
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                document.getElementById('welcomeUser').textContent = `Bonjour ${user.name}!`;
+                document.getElementById('welcomeScreen').style.display = 'block';
+                document.getElementById('loginForm').classList.remove('active');
+                showSuccess('Connexion réussie !');
+            } else {
+                showError('Email ou mot de passe incorrect');
+            }
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            // Validations
+            if (!name || !email || !password || !confirmPassword) {
+                showError('Veuillez remplir tous les champs');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('Le mot de passe doit faire 8 caractères minimum');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            if (users.find(u => u.email === email)) {
+                showError('Cet email est déjà utilisé');
+                return;
+            }
+
+            // Créer nouvel utilisateur
+            const newUser = { name, email, password };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            showSuccess('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+            showForm('login');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            document.getElementById('welcomeScreen').style.display = 'none';
+            showForm('login');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function showForgotPassword() {
+            showError('Fonctionnalité en développement');
+        }
+
+        // Vérifier si utilisateur connecté au chargement
+        window.onload = function() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                document.getElementById('welcomeUser').textContent = `Bonjour ${user.name}!`;
+                document.getElementById('welcomeScreen').style.display = 'block';
+            }
+        };
+
+        // Entrée au clic sur Entrée
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeForm = document.querySelector('.form-content.active');
+                if (activeForm.id === 'loginForm') {
+                    handleLogin();
+                } else if (activeForm.id === 'registerForm') {
+                    handleRegister();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
